@@ -13,6 +13,7 @@ namespace My_new_API.Data
         public DbSet<Difficulty> difficulties {  get; set; }
         public DbSet<Region> regions { get; set; }
         public DbSet<Walk> walks { get; set; }
+        public DbSet<Image> images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,7 +63,6 @@ namespace My_new_API.Data
                 },
             };
             modelBuilder.Entity<Region>().HasData(regions);
-
         }
     }
 }

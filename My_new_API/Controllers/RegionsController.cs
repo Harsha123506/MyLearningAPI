@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using My_new_API.Repositories;
 
 namespace My_new_API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RegionsController : ControllerBase
@@ -23,6 +25,7 @@ namespace My_new_API.Controllers
             this._mapper = mapper;
         }
 
+        [Authorize(Roles = "Reader")]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -63,6 +66,7 @@ namespace My_new_API.Controllers
             return Ok(region);
         }
 
+        [Authorize(Roles = "Writer")]
         [HttpPost("insertregions")]
         public async Task<IActionResult> Insertregions([FromBody] RegionDTO regiondto)
         {
@@ -99,4 +103,3 @@ namespace My_new_API.Controllers
      }
 
 }
-
