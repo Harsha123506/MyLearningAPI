@@ -14,34 +14,35 @@ using My_new_API.Repositories.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen( opt =>
-//{
-//    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My_new_API_v1", Version = "v1" });
-//    opt.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme { Name = "Authorization", In = ParameterLocation.Header, Type = SecuritySchemeType.ApiKey, Scheme = JwtBearerDefaults.AuthenticationScheme });
-//    opt.AddSecurityRequirement(new OpenApiSecurityRequirement {{ new OpenApiSecurityScheme
-//    {
-//        Reference = new OpenApiReference
-//        {
-//            Type = ReferenceType.SecurityScheme,
-//            Id = JwtBearerDefaults.AuthenticationScheme
-//        },
-//        Scheme = "Oauth2",
-//        Name = JwtBearerDefaults.AuthenticationScheme,
-//        In = ParameterLocation.Header
-//    },
-//    new List<string>()
-//        }
-//    });
-//});
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My_new_API_v1", Version = "v1" });
+    opt.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme { Name = "Authorization", In = ParameterLocation.Header, Type = SecuritySchemeType.ApiKey, Scheme = JwtBearerDefaults.AuthenticationScheme });
+    opt.AddSecurityRequirement(new OpenApiSecurityRequirement {{ new OpenApiSecurityScheme
+    {
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = JwtBearerDefaults.AuthenticationScheme
+        },
+        Scheme = "Oauth2",
+        Name = JwtBearerDefaults.AuthenticationScheme,
+        In = ParameterLocation.Header
+    },
+    new List<string>()
+        }
+    });
+});
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<AuthDataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AuthDBConnection")));
 builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
 builder.Services.AddScoped<IWalksRepository, SQLWalksRepository>();
 builder.Services.AddScoped<IUserRepository, SqlUserRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 builder.Services.AddIdentityCore<IdentityUser>()

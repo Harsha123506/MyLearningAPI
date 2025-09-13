@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using My_new_API.Data;
 using My_new_API.DTO_s;
 using My_new_API.Models;
+using My_new_API.Repositories;
+using My_new_API.Repositories.Interfaces;
 
 namespace My_new_API.Controllers
 {
@@ -9,7 +12,10 @@ namespace My_new_API.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        public ImagesController() { }
+        public readonly IImageRepository _imageRepository;
+        public ImagesController(IImageRepository imageRepository) {
+            _imageRepository = imageRepository;
+        }
 
         [HttpPost]
         [Route("Upload")]
@@ -29,7 +35,8 @@ namespace My_new_API.Controllers
                         FilePath = Path.Combine("UploadedFiles", FileRequest.FileName + Path.GetExtension(FileRequest.FormFile.FileName))
                     };
 
-                    return Ok("Image Uploaded Successfully");
+                    await _imageRepository.UploadImageAsync(imageDomainModel);
+                    return Ok(imageDomainModel);
                 }
                 else
                 {
