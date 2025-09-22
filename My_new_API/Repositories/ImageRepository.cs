@@ -16,12 +16,12 @@ namespace My_new_API.Repositories
         }
         public async Task<Image> UploadImageAsync(Image image)
         {
-            string localFilePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Images" + image.FileName + image.FileExtension);
+            string localFilePath = Path.Combine(_webHostEnvironment.ContentRootPath, "Images" , $"{ image.FileName}{image.FileExtension}");
             using (var stream = new FileStream(localFilePath, FileMode.Create))
             {
                 await image.File.CopyToAsync(stream); // save in specified path in server
             }
-            var urlFilePath = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}/Images/{image.FileName}/{image.FileExtension}";
+            var urlFilePath = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host}{_httpContextAccessor.HttpContext.Request.PathBase}/Images/{image.FileName}{image.FileExtension}";
             image.FilePath = urlFilePath;
             await _dataContext.images.AddAsync(image);
             await _dataContext.SaveChangesAsync();

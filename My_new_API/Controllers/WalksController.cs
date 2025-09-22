@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using My_new_API.CustomActionFilter;
 using My_new_API.DTO_s;
-using My_new_API.Models;
 using My_new_API.Repositories.Interfaces;
 
 namespace My_new_API.Controllers
@@ -13,10 +12,12 @@ namespace My_new_API.Controllers
     {
         public readonly IMapper _Mapper;
         public readonly IWalksRepository _walksRepository;
-        public WalksController(IMapper Mapper, IWalksRepository _walksRepository)
+        public readonly ILogger<WalksController> _logger;
+        public WalksController(IMapper Mapper, IWalksRepository walksRepository, ILogger<WalksController> logger)
         {
-            this._Mapper = Mapper;
-            this._walksRepository = _walksRepository;
+            _Mapper = Mapper;
+            _walksRepository = walksRepository;
+            _logger = logger;
         }
         [HttpPost]
         [CustomModelValidation]
@@ -29,8 +30,17 @@ namespace My_new_API.Controllers
         [HttpGet("GetWalks")]
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQuery, [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var walks = await _walksRepository.GetAll(filterOn,filterQuery,sortBy,isAscending,pageNumber,pageSize);
-            return Ok(_Mapper.Map<List<WalksDTO>>(walks));
+            try
+            {
+                _logger.LogInformation("GetAll Walks");
+                var walks = await _walksRepository.GetAll(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
+                return Ok(_Mapper.Map<List<WalksDTO>>(walks));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Something Went wrong");
+                return BadRequest(ex);  
+            }
         }
 
         [HttpGet]
