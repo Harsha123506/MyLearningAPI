@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using My_new_API.Data;
 using My_new_API.Mappings;
+using My_new_API.Middlewares;
 using My_new_API.Repositories;
 using My_new_API.Repositories.Interfaces;
 using Serilog;
@@ -103,6 +104,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
