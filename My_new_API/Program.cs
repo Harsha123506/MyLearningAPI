@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using My_new_API;
 using My_new_API.Data;
 using My_new_API.Mappings;
 using My_new_API.Middlewares;
@@ -24,13 +25,26 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
+builder.Services.AddApiVersioning( opt =>
+{
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    opt.ReportApiVersions = true;
+});
+
+builder.Services.AddVersionedApiExplorer( opt =>
+{
+    opt.GroupNameFormat = "'v'VVV";
+    opt.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.AddHttpContextAccessor(); // to utilize context apart frorm controller
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My_new_API_v1", Version = "v1" });
+    // opt.SwaggerDoc("v1", new OpenApiInfo { Title = "My_new_API_v1", Version = "v1" });
     opt.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme { Name = "Authorization", In = ParameterLocation.Header, Type = SecuritySchemeType.ApiKey, Scheme = JwtBearerDefaults.AuthenticationScheme });
     opt.AddSecurityRequirement(new OpenApiSecurityRequirement {{ new OpenApiSecurityScheme
     {
@@ -47,6 +61,7 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<AuthDataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("AuthDBConnection")));
 builder.Services.AddScoped<IRegionRepository, SqlRegionRepository>();
@@ -97,12 +112,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     });
 
 var app = builder.Build();
+var versionDescriptionProvider = app.Services.GetRequiredService<Microsoft.AspNetCore.Mvc.ApiExplorer.IApiVersionDescriptionProvider>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opt =>
+    {
+        foreach (var desc in versionDescriptionProvider.ApiVersionDescriptions)
+        {
+            opt.SwaggerEndpoint($"/swagger/{desc.GroupName}/swagger.json", desc.GroupName.ToUpperInvariant());
+        }
+    });
 }
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();

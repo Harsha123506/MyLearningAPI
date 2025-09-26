@@ -12,7 +12,9 @@ using My_new_API.Repositories;
 namespace My_new_API.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
+    [Route("api/v{version:apiversion}/[controller]")]
     [ApiController]
     public class RegionsController : ControllerBase
     {
